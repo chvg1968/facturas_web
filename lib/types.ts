@@ -30,8 +30,8 @@ export interface ApiError {
 
 export type ApiResponse = ApiSuccess | ApiError;
 
-export type UserRole = "admin" | "editor";
-export type UserStatus = "pendiente" | "activo" | "bloqueado";
+export type UserRole = string;
+export type UserStatus = string;
 
 export interface UserRecord {
   id: string;

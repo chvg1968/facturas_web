@@ -7,6 +7,7 @@ import {
 } from "@/lib/airtable-users";
 import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/email";
 import type { UserRecord } from "@/lib/types";
+import { getAuthAirtableConfig } from "./config";
 import { hashPassword, verifyPassword } from "./password";
 import { setSession } from "./session";
 import { generateToken, hashToken, tokenExpiration } from "./tokens";
@@ -18,6 +19,7 @@ export async function registerUser(input: {
   email: string;
   password: string;
 }): Promise<void> {
+  const authCfg = getAuthAirtableConfig();
   const existing = await findUserByEmail(input.email);
   if (existing) {
     throw new Error("Ya existe una cuenta con ese correo");
@@ -30,8 +32,8 @@ export async function registerUser(input: {
     Email: input.email,
     Nombre: input.nombre,
     "Password Hash": passwordHash,
-    Rol: "editor",
-    Estado: "pendiente",
+    Rol: authCfg.defaultRole,
+    Estado: authCfg.statusPending,
     "Email Verificado": false,
     "Token Verificacion": hashToken(verificationToken),
     "Token Expiracion": tokenExpiration(24),
@@ -52,6 +54,7 @@ function isExpired(user: UserRecord): boolean {
 }
 
 export async function verifyEmailToken(token: string): Promise<void> {
+  const authCfg = getAuthAirtableConfig();
   const user = await findUserByVerificationTokenHash(hashToken(token));
   if (!user) {
     throw new Error("El enlace de verificación no es válido");
@@ -64,7 +67,7 @@ export async function verifyEmailToken(token: string): Promise<void> {
   }
 
   await updateUser(user.id, {
-    Estado: "activo",
+    Estado: authCfg.statusActive,
     "Email Verificado": true,
     "Token Verificacion": null,
     "Token Expiracion": null,
@@ -75,14 +78,15 @@ export async function loginUser(input: {
   email: string;
   password: string;
 }): Promise<void> {
+  const authCfg = getAuthAirtableConfig();
   const user = await findUserByEmail(input.email);
   if (!user) {
     throw new Error("Credenciales inválidas");
   }
-  if (user.estado === "bloqueado") {
+  if (user.estado === authCfg.statusBlocked) {
     throw new Error("Tu cuenta está bloqueada");
   }
-  if (!user.emailVerificado || user.estado !== "activo") {
+  if (!user.emailVerificado || user.estado !== authCfg.statusActive) {
     throw new Error("Debes verificar tu correo antes de iniciar sesión");
   }
 
@@ -91,7 +95,7 @@ export async function loginUser(input: {
     const failedAttempts = user.intentosFallidos + 1;
     await updateUser(user.id, {
       "Intentos Fallidos": failedAttempts,
-      Estado: failedAttempts >= MAX_FAILED_ATTEMPTS ? "bloqueado" : user.estado,
+      Estado: failedAttempts >= MAX_FAILED_ATTEMPTS ? authCfg.statusBlocked : user.estado,
     });
     throw new Error("Credenciales inválidas");
   }
@@ -110,8 +114,9 @@ export async function loginUser(input: {
 }
 
 export async function requestPasswordReset(input: { email: string }): Promise<void> {
+  const authCfg = getAuthAirtableConfig();
   const user = await findUserByEmail(input.email);
-  if (!user || !user.emailVerificado || user.estado !== "activo") {
+  if (!user || !user.emailVerificado || user.estado !== authCfg.statusActive) {
     return;
   }
 
@@ -133,6 +138,7 @@ export async function resetPassword(input: {
   token: string;
   password: string;
 }): Promise<void> {
+  const authCfg = getAuthAirtableConfig();
   const user = await findUserByResetTokenHash(hashToken(input.token));
   if (!user) {
     throw new Error("El enlace para restablecer la contraseña no es válido");
@@ -147,6 +153,6 @@ export async function resetPassword(input: {
     "Token Recuperacion": null,
     "Token Expiracion": null,
     "Intentos Fallidos": 0,
-    Estado: user.emailVerificado ? "activo" : user.estado,
+    Estado: user.emailVerificado ? authCfg.statusActive : user.estado,
   });
 }
