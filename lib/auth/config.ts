@@ -8,7 +8,7 @@ export interface AuthAirtableConfig {
 export function getAuthAirtableConfig(): AuthAirtableConfig {
   return {
     defaultRole: process.env.AUTH_DEFAULT_ROLE || "editor",
-    statusPending: process.env.AUTH_STATUS_PENDING || "pendiente",
+    statusPending: process.env.AUTH_STATUS_PENDING || "pendiente_verificacion",
     statusActive: process.env.AUTH_STATUS_ACTIVE || "activo",
     statusBlocked: process.env.AUTH_STATUS_BLOCKED || "bloqueado",
   };
