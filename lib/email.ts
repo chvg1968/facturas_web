@@ -26,7 +26,7 @@ export async function sendVerificationEmail(input: {
   token: string;
 }): Promise<void> {
   const resend = getResend();
-  const verificationUrl = `${getBaseUrl()}/api/auth/verify-email?token=${encodeURIComponent(input.token)}`;
+  const verificationUrl = `${getBaseUrl()}/verificar-email?token=${encodeURIComponent(input.token)}`;
 
   const { error } = await resend.emails.send({
     from: getFromEmail(),

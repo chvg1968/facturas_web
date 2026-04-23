@@ -1,14 +1,27 @@
 import Link from "next/link";
+import { verifyEmailToken } from "@/lib/auth/service";
 
 export default async function VerifyEmailPage({
   searchParams,
 }: {
-  searchParams?: { status?: string; message?: string };
+  searchParams?: { status?: string; message?: string; token?: string };
 }) {
-  const success = searchParams?.status === "success";
-  const message =
+  let success = searchParams?.status === "success";
+  let message =
     searchParams?.message ||
     "Usa el enlace del correo para completar la verificación de tu cuenta.";
+
+  if (searchParams?.token) {
+    try {
+      await verifyEmailToken(searchParams.token);
+      success = true;
+      message = "Tu correo fue verificado. Ya puedes iniciar sesión.";
+    } catch (error) {
+      success = false;
+      message =
+        error instanceof Error ? error.message : "No se pudo verificar el correo";
+    }
+  }
 
   return (
     <main className="min-h-screen px-4 py-10 sm:py-16">
