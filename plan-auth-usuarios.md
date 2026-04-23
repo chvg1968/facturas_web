@@ -1,4 +1,4 @@
-# Plan para añadir registro y login de usuarios con Zod, Airtable y Resend
+# Plan para añadir registro y login de usuarios con Zod, Airtable y 	
 
 ## Objetivo
 
@@ -46,7 +46,7 @@ Esto reduce complejidad y encaja mejor con la arquitectura actual.
 
 ### 2. No guardar nunca la contraseña en texto plano
 
-El campo `Password Hash` en Airtable debe almacenar únicamente el hash de la contraseña.  
+El campo `Password Hash` en Airtable debe almacenar únicamente el hash de la contraseña.
 La contraseña original solo se usa durante la validación de entrada y el proceso de hash.
 
 ### 3. Separar estado de acceso y verificación
@@ -281,7 +281,7 @@ Si más adelante aparecen requisitos de revocación de sesión, convendrá pasar
 
 ### Middleware
 
-Añadir `middleware.ts` solo cuando ya existan rutas privadas.  
+Añadir `middleware.ts` solo cuando ya existan rutas privadas.
 No hace falta introducirlo antes de tener páginas protegidas.
 
 ## Manejo de errores y seguridad
@@ -373,7 +373,7 @@ Conviene revisar que:
 
 ### 3. API key expuesta
 
-La API key de Airtable y la de Resend deben quedarse exclusivamente del lado servidor.  
+La API key de Airtable y la de Resend deben quedarse exclusivamente del lado servidor.
 No deben exponerse a componentes cliente ni a variables `NEXT_PUBLIC_*`.
 
 ## Resultado esperado

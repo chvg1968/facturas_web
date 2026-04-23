@@ -29,3 +29,29 @@ export interface ApiError {
 }
 
 export type ApiResponse = ApiSuccess | ApiError;
+
+export type UserRole = "admin" | "editor";
+export type UserStatus = "pendiente" | "activo" | "bloqueado";
+
+export interface UserRecord {
+  id: string;
+  email: string;
+  nombre: string;
+  passwordHash: string;
+  rol: UserRole;
+  estado: UserStatus;
+  emailVerificado: boolean;
+  tokenVerificacion: string | null;
+  tokenRecuperacion: string | null;
+  tokenExpiracion: string | null;
+  fechaRegistro: string | null;
+  ultimoLogin: string | null;
+  intentosFallidos: number;
+}
+
+export interface AuthSuccess {
+  ok: true;
+  message: string;
+}
+
+export type AuthResponse = AuthSuccess | ApiError;
